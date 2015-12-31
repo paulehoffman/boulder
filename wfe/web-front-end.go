@@ -107,16 +107,6 @@ func NewWebFrontEndImpl(stats statsd.Statter, clk clock.Clock) (WebFrontEndImpl,
 	}, nil
 }
 
-// BodylessResponseWriter wraps http.ResponseWriter, discarding
-// anything written to the body.
-type BodylessResponseWriter struct {
-	http.ResponseWriter
-}
-
-func (mrw BodylessResponseWriter) Write(buf []byte) (int, error) {
-	return len(buf), nil
-}
-
 // HandleFunc registers a handler at the given path. It's
 // http.HandleFunc(), but with a wrapper around the handler that
 // provides some generic per-request functionality:
@@ -157,10 +147,6 @@ func (wfe *WebFrontEndImpl) HandleFunc(mux *http.ServeMux, pattern string, h wfe
 
 			switch request.Method {
 			case "HEAD":
-				// Whether or not we're sending a 405 error,
-				// we should comply with HTTP spec by not
-				// sending a body.
-				response = BodylessResponseWriter{response}
 			case "OPTIONS":
 				wfe.Options(response, request, methodsStr, methodsMap)
 				return
